@@ -1,28 +1,35 @@
-// netlify/functions/get-session.js
-const Stripe = require("stripe");
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+import Stripe from "stripe";
 
-exports.handler = async function (event) {
-  if (event.httpMethod !== "GET") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+export default async function handler(req, res) {
+
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const params = event.queryStringParameters || {};
-  const sessionId = params.session_id;
+  const sessionId = req.query.session_id;
+
   if (!sessionId) {
-    return { statusCode: 400, body: JSON.stringify({ error: "session_id required" }) };
+    return res.status(400).json({
+      error: "session_id required"
+    });
   }
 
   try {
+
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["line_items", "customer"],
+      expand: ["line_items", "customer"]
     });
-    return {
-      statusCode: 200,
-      body: JSON.stringify(session),
-    };
+
+    return res.status(200).json(session);
+
   } catch (err) {
+
     console.error("get-session error:", err);
-    return { statusCode: 500, body: JSON.stringify({ error: "Failed to fetch session" }) };
+
+    return res.status(500).json({
+      error: "Failed to fetch session"
+    });
   }
-};
+}

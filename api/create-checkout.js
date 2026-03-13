@@ -1,23 +1,27 @@
-const Stripe = require("stripe");
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+import Stripe from "stripe";
 
-exports.handler = async function (event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+export default async function handler(req, res) {
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   try {
-    console.log("🟡 Received event body:", event.body);
 
-    const { items, origin, shipping } = JSON.parse(event.body);
+    console.log("🟡 Received event body:", req.body);
+
+    const { items, origin, shipping } = req.body;
+
     console.log("🟢 Parsed items:", items);
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       console.error("❌ No items in cart:", items);
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "No items in cart" }),
-      };
+
+      return res.status(400).json({
+        error: "No items in cart"
+      });
     }
 
     const line_items = items.map((item) => ({
@@ -25,11 +29,13 @@ exports.handler = async function (event) {
         currency: "usd",
         product_data: {
           name: item.title || item.name || "Poster",
-          metadata: { poster_id: item.id ? String(item.id) : "" },
+          metadata: {
+            poster_id: item.id ? String(item.id) : ""
+          }
         },
-        unit_amount: Math.round((item.price || 0) * 100),
+        unit_amount: Math.round((item.price || 0) * 100)
       },
-      quantity: item.quantity && item.quantity > 0 ? item.quantity : 1,
+      quantity: item.quantity && item.quantity > 0 ? item.quantity : 1
     }));
 
     console.log("🧾 Line items for Stripe:", line_items);
@@ -41,21 +47,22 @@ exports.handler = async function (event) {
       success_url: `${origin}/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/?canceled=true`,
       metadata: {
-        client_note: shipping ? JSON.stringify(shipping) : "",
-      },
+        client_note: shipping ? JSON.stringify(shipping) : ""
+      }
     });
 
     console.log("✅ Stripe session created:", session.id);
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ sessionId: session.id }),
-    };
+    return res.status(200).json({
+      sessionId: session.id
+    });
+
   } catch (err) {
+
     console.error("🔥 create-checkout error:", err);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error" }),
-    };
+
+    return res.status(500).json({
+      error: "Internal server error"
+    });
   }
-};
+}
