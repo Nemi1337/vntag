@@ -48,7 +48,7 @@
     return;
   }
 
-  fetch('/.netlify/functions/get-session?session_id=' + encodeURIComponent(sessionId))
+  fetch('/api/get-session?session_id=' + encodeURIComponent(sessionId))
     .then(async (res) => {
       const data = await res.json();
 

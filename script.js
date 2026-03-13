@@ -549,7 +549,7 @@ let stripe;
 
 async function initStripe() {
   try {
-    const res = await fetch("/.netlify/functions/get-publishable-key");
+    const res = await fetch("/api/get-publishable-key");
     const data = await res.json();
     if (!res.ok || !data.key) return console.error("No Stripe key", data);
     stripe = Stripe(data.key);
@@ -585,7 +585,7 @@ function setupShippingForm() {
     }
 
     try {
-      const createSessionResponse = await fetch("/.netlify/functions/create-checkout", {
+      const createSessionResponse = await fetch("/api/create-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
