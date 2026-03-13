@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact - Posters</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #111827;
+      color: #e5e7eb;
+    }
+
+    .font-display {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .highlight-box {
+      background-color: #1f2937;
+      border-left: 4px solid #3b82f6;
+      padding: 1.25rem 1.5rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .tracking-link {
+      display: inline-block;
+      background-color: #3b82f6;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      transition: background-color 0.2s;
+    }
+
+    .tracking-link:hover {
+      background-color: #2563eb;
+    }
+
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .feature-item {
+      background-color: #1f2937;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #3b82f6;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+ 
+ <header class="sticky top-0 z-50 bg-gray-900/90 backdrop-blur-md border-b border-gray-700">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+
+        
+        <div class="flex items-center space-x-8">
+          <a href="/" class="text-2xl font-display font-bold text-white">Posters</a>
+
+          
+          <nav class="hidden md:flex space-x-6">
+            <a href="/" class="hover:text-gray-300 transition">Gallery</a>
+            <a href="authenticity.html" class="hover:text-gray-300 transition">Authenticity</a>
+            <a href="contact.html" class="hover:text-gray-300 transition">Contact & Help</a>
+          </nav>
+
+          
+          <div id="mobile-menu" class="hidden absolute top-16 left-0 right-0 bg-gray-900 border-t border-gray-700 flex-col space-y-4 p-4 md:hidden">
+            <a href="/" class="hover:text-gray-300 transition">Gallery</a>
+            <a href="authenticity.html" class="hover:text-gray-300 transition">Authenticity</a>
+            <a href="contact.html" class="hover:text-gray-300 transition">Contact & Help</a>
+          </div>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+            <input type="text" placeholder="Search posters..." id="search-input"
+              class="search-input bg-gray-800 rounded-full py-2 px-4 pl-10 w-56 md:w-80 focus:w-96 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500">
+            <div class="absolute left-3 top-2.5 text-gray-400">
+              <i class="fas fa-search"></i>
+            </div>
+            <div id="search-results" class="search-dropdown hidden absolute left-0 mt-1 w-full bg-gray-900 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto"></div>
+          </div>
+
+  <button id="cart-icon"
+  class="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-gray-700 transition relative">
+  <i class="fas fa-shopping-cart"></i>
+  <span class="font-medium">Cart</span>
+  <span id="cart-count"
+    class="ml-1 bg-white text-black text-xs font-bold rounded-full h-5 min-w-5 px-1 flex items-center justify-center">
+    0
+  </span>
+</button>
+
+<div id="currency-switcher" class="text-sm font-medium">
+  <span data-cur="EUR" class="cursor-pointer px-1 py-0.5 rounded transition">EUR</span> |
+  <span data-cur="USD" class="cursor-pointer px-1 py-0.5 rounded transition">USD</span> |
+  <span data-cur="GBP" class="cursor-pointer px-1 py-0.5 rounded transition">GBP</span>
+</div>
+
+        
+
+          
+          <button id="mobile-menu-btn" class="md:hidden p-2 rounded-full hover:bg-gray-700 transition">
+  <i class="fas fa-bars"></i>
+</button> 
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+
+  <main class="container mx-auto px-4 py-16 max-w-5xl">
+    <h1 class="text-4xl md:text-5xl font-display font-bold mb-10 text-center">Contact</h1>
+
+
+<div class="bg-gray-800 px-10 py-6 rounded-lg mb-12">
+  <h2 class="text-2xl font-semibold mb-6 text-center tracking-wide">Shipping & Payment Information</h2>
+
+  <div class="highlight-box">
+    <p class="text-lg font-bold mb-1 text-white">NO ADDITIONAL COSTS!</p>
+    <p class="text-gray-300">The buyer pays only the price of the poster. 
+      <strong class="text-blue-400">ALL ADDITIONAL COSTS SUCH AS CUSTOMS DUTIES AND SHIPPING ARE COVERED BY US.</strong>
+    </p>
+  </div>
+
+  <div class="space-y-6">
+    <div>
+      <p class="text-white font-semibold mb-1">Delivery speed depends on the address provided.</p>
+      <p class="text-gray-400 leading-relaxed">
+        We always combine shipping to save postage expenses. 
+        Items ship within <strong class="text-blue-400 font-semibold">1–2 business days</strong> 
+        after payment is received via 
+        <strong class="text-gray-200">registered airmail by Ukrainian Postal Service</strong>.
+      </p>
+    </div>
+
+    <div>
+      <p class="text-white font-semibold mb-1 mt-3">Estimated delivery times:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-400">
+        <li>USA, Canada, Australia, Japan: <strong class="text-blue-400">12–20 business days</strong></li>
+        <li>Europe: <strong class="text-blue-400">7–15 business days</strong></li>
+      </ul>
+    </div>
+
+    <div class="mt-6 p-4 bg-blue-900/30 rounded-lg border border-blue-800/40">
+      <p class="font-semibold text-white">Tracking Information:</p>
+      <p class="text-gray-300">After shipping, the tracking number will be sent to your email provided at checkout.</p>
+      <p class="text-gray-300">You can also track your order directly via the Ukrainian Postal Service website:</p>
+      <a href="https://track.ukrposhta.ua/tracking_EN.html" target="_blank" class="tracking-link mt-2">
+        Track Your Package <i class="ml-2 fas fa-external-link-alt"></i>
+      </a>
+    </div>
+  </div>
+</div>
+
+    <div class="bg-gray-800 p-8 rounded-lg mb-10 max-w-2xl mx-auto">
+      <h2 class="text-2xl font-semibold mb-5 text-center">Send a Message</h2>
+      <p class="mb-5 text-center text-gray-300">Have a question about your order, returns, or want to suggest a new design? We'd love to hear from you!</p>
+
+      <div class="bg-blue-900/20 p-3 rounded-lg mb-5">
+        <p class="text-center text-sm"><i class="fas fa-info-circle mr-2"></i> We typically respond within <strong>1–4 business days</strong>.</p>
+      </div>
+
+      <form id="contact-form" action="https://formspree.io/f/xqadrzkk" method="POST" class="space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label for="name" class="block text-sm font-medium mb-2">Name</label>
+            <input type="text" id="name" name="name" required class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <div>
+            <label for="email" class="block text-sm font-medium mb-2">Email</label>
+            <input type="email" id="email" name="email" required class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+
+        <div>
+          <label for="subject" class="block text-sm font-medium mb-2">Subject</label>
+          <select id="subject" name="subject" required class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Select a subject</option>
+            <option value="general">General Inquiry</option>
+            <option value="order">Order Question</option>
+            <option value="suggestion">Poster Suggestion</option>
+            <option value="custom">Custom Order</option>
+            <option value="wholesale">Wholesale Inquiry</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="message" class="block text-sm font-medium mb-2">Message (max 5000 characters)</label>
+          <textarea id="message" name="message" rows="5" maxlength="5000" required class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+          <div class="text-xs text-gray-400 mt-1"><span id="char-count">0</span>/5000 characters</div>
+        </div>
+
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-md transition font-semibold text-base">Send Message</button>
+
+        <div id="form-success" class="hidden mt-3 p-3 bg-green-900 text-green-300 rounded-md text-sm">
+          <i class="fas fa-check-circle mr-2"></i> Thank you! We’ll get back to you soon.
+        </div>
+      </form>
+    </div>
+
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-envelope"></i></div>
+        <h3 class="font-semibold text-lg mb-2">Email Us</h3>
+        <p>Reach out at <a href="mailto:pliesen@proton.me" class="text-blue-400 underline">pliesen@proton.me</a></p>
+      </div>
+
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-shipping-fast"></i></div>
+        <h3 class="font-semibold text-lg mb-2">Fast Shipping</h3>
+        <p>Items ship within <strong>1–2 business days</strong></p>
+      </div>
+
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-headset"></i></div>
+        <h3 class="font-semibold text-lg mb-2">Quick Response</h3>
+        <p>We reply to all inquiries within <strong>1–4 business days</strong></p>
+      </div>
+    </div>
+
+    <div id="form-error" class="hidden mt-6 p-4 bg-red-900 text-red-300 rounded-md">
+      <i class="fas fa-exclamation-circle mr-2"></i> Sorry, there was an error sending your message. Please try again.
+    </div>
+  </main>
+
+
+ <footer class="bg-black text-gray-400 py-8 text-center text-sm">
+  <div class="container mx-auto px-4">
+    <div class="flex flex-wrap justify-center gap-4 mb-4">
+      <a href="contact.html" class="hover:text-white transition">Contact</a>
+      <a href="authenticity.html" class="hover:text-white transition">Authenticity</a>
+      <a href="shipping.html" class="hover:text-white transition">Shipping</a>
+      <a href="returns.html" class="hover:text-white transition">Returns</a>
+      <a href="privacy.html" class="hover:text-white transition">Privacy Policy</a>
+      <a href="terms.html" class="hover:text-white transition">Terms</a>
+    </div>
+    <p>© 2025 Posters. All rights reserved.</p>
+  </div>
+</footer>
+
+
+  <script>
+    const form = document.getElementById('contact-form');
+    const charCount = document.getElementById('char-count');
+    const messageTextarea = document.getElementById('message');
+    const successMessage = document.getElementById('form-success');
+    const errorMessage = document.getElementById('form-error');
+
+    messageTextarea.addEventListener('input', () => {
+      charCount.textContent = messageTextarea.value.length;
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: formData,
+          headers: { 'Accept': 'application/json' }
+        });
+        if (response.ok) {
+          successMessage.classList.remove('hidden');
+          errorMessage.classList.add('hidden');
+          form.reset();
+          charCount.textContent = '0';
+          successMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+          throw new Error('Form submission failed');
+        }
+      } catch (error) {
+        errorMessage.classList.remove('hidden');
+        successMessage.classList.add('hidden');
+        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+  </script>
+<div id="cart-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+  <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-70" data-close></div>
+
+  <div class="bg-white rounded-lg shadow-xl max-w-lg w-11/12 mx-4 p-6 relative flex flex-col">
+    <button class="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-xl" data-close>
+      <i class="fas fa-times"></i>
+    </button>
+
+    <h2 class="text-2xl font-bold mb-4 text-gray-800">Your Cart</h2>
+
+    <div id="cart-items" class="space-y-3 mb-4 max-h-64 overflow-y-auto"></div>
+
+    <div id="cart-footer" class="mt-4">
+      <div id="cart-total" class="font-bold text-lg mb-3 text-gray-800">Total: €0.00</div>
+
+      <div id="payment-buttons" class="mb-3"></div>
+
+      <p class="text-sm text-gray-700 mt-4">
+        Secure payments are processed by <strong>Stripe</strong>.
+        For questions, contact us in the
+        <a href="contact.html" class="text-blue-600 underline">Contact & Help</a> section.
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<div id="shipping-modal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+  <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-70" data-close></div>
+  <div class="bg-white rounded-lg shadow-xl max-w-lg w-11/12 mx-4 p-6 relative flex flex-col">
+    <button class="absolute top-3 right-3 text-gray-600 hover:text-gray-800 text-xl" data-close>
+      <i class="fas fa-times"></i>
+    </button>
+
+    <h2 class="text-2xl font-bold mb-4 text-gray-800 text-center">Shipping Information</h2>
+    <p class="text-sm text-gray-600 text-center mb-6">
+      Please fill in your delivery details to complete your order.
+    </p>
+
+    <form id="shipping-form" class="space-y-4 text-left">
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Full name <span class="text-red-500">*</span></label>
+        <input type="text" name="full_name" placeholder="First and last name" required
+          class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">E-mail <span class="text-red-500">*</span></label>
+          <input type="email" name="email" placeholder="you@example.com" required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Phone number <span class="text-red-500">*</span></label>
+          <input type="tel" name="phone" placeholder="+1 234 567 890" required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+      </div>
+
+      
+      <h3 class="font-semibold text-gray-800 mt-4 mb-2">Delivery Address</h3>
+      <input type="text" name="address" placeholder="Street, building, apartment" required
+        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">City / Town <span class="text-red-500">*</span></label>
+          <input type="text" name="city" placeholder="City" required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Region / State</label>
+          <input type="text" name="region" placeholder="Region or State"
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Postal code <span class="text-red-500">*</span></label>
+          <input type="text" name="postal_code" placeholder="ZIP or postal code" required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Country <span class="text-red-500">*</span></label>
+          <input type="text" name="country" placeholder="Country" required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+      </div>
+
+      <button type="submit"
+        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition">
+        Send shipping details
+      </button>
+    </form>
+
+    <div id="shipping-success"
+      class="hidden mt-4 bg-green-100 text-green-700 px-3 py-2 rounded-md text-center text-sm">
+      ✅ Shipping info sent successfully!
+    </div>
+  </div>
+</div>
+<script src="https://js.stripe.com/v3/"></script>
+<script type="module" src="script.js"></script>
+</body>
+</html>

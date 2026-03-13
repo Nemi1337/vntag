@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Order confirmed | Vintage Posters Shop</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description" content="Your order has been successfully confirmed. Thank you for shopping at Vintage Posters Shop.">
+  <link rel="canonical" href="https://vintage-posters.shop/success.html" />
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-900 text-white min-h-screen font-sans">
+  <main class="max-w-2xl mx-auto px-6 py-16">
+    <div class="bg-gray-800 rounded-xl shadow-lg p-8">
+      <h1 class="text-3xl font-bold mb-4 text-center">Thank you — your order is confirmed ✅</h1>
+      <p class="text-gray-300 text-center mb-8">
+        Your payment was successful. We will prepare your order and send confirmation details shortly.
+      </p>
+
+      <div id="content" class="text-gray-200">Loading order details...</div>
+
+      <div class="mt-10 text-center">
+        <a href="/"
+           class="inline-block bg-white text-black font-semibold px-6 py-3 rounded-md hover:bg-gray-200 transition">
+          Back to gallery
+        </a>
+      </div>
+    </div>
+  </main>
+
+<script>
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session_id');
+  const container = document.getElementById('content');
+
+  if (!sessionId) {
+    container.innerHTML = `
+      <p class="text-red-400 text-center">
+        We could not verify your order session.
+      </p>
+      <p class="text-center mt-4">
+        Please contact us via <a href="contact.html" class="underline text-blue-400">Contact & Help</a>.
+      </p>
+    `;
+    return;
+  }
+
+  fetch('/.netlify/functions/get-session?session_id=' + encodeURIComponent(sessionId))
+    .then(async (res) => {
+      const data = await res.json();
+
+      if (!res.ok) {
+        container.innerHTML = `
+          <p class="text-red-400 text-center">
+            We could not load your order details.
+          </p>
+          <p class="text-center mt-4">
+            Please contact us via <a href="contact.html" class="underline text-blue-400">Contact & Help</a>.
+          </p>
+        `;
+        return;
+      }
+
+      const items = data.line_items?.data || [];
+      const customer = data.customer_details || {};
+      const total = ((data.amount_total || 0) / 100).toFixed(2);
+
+      let html = '';
+
+      if (customer.name || customer.email) {
+        html += `<p class="mb-4 text-center">Order for <strong>${customer.name || customer.email}</strong></p>`;
+      }
+
+      html += `<h2 class="text-xl font-semibold mt-6 mb-3">Order summary</h2>`;
+      html += `<ul class="space-y-2">`;
+
+      if (items.length) {
+        items.forEach((item) => {
+          const name = item.description || 'Poster';
+          const qty = item.quantity || 1;
+          html += `<li class="border-b border-gray-700 pb-2">${qty} × ${name}</li>`;
+        });
+      } else {
+        html += `<li>No items found.</li>`;
+      }
+
+      html += `</ul>`;
+      html += `<p class="mt-6 font-bold text-lg">Total paid: $${total}</p>`;
+      html += `
+        <p class="mt-4 text-gray-400 text-sm">
+          If you have any questions about your order, please contact us through the Contact & Help page.
+        </p>
+      `;
+
+      container.innerHTML = html;
+    })
+    .catch(() => {
+      container.innerHTML = `
+        <p class="text-red-400 text-center">
+          Network error while loading your order details.
+        </p>
+        <p class="text-center mt-4">
+          Please contact us via <a href="contact.html" class="underline text-blue-400">Contact & Help</a>.
+        </p>
+      `;
+    });
+})();
+</script>
+</body>
+</html>
