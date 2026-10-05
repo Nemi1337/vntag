@@ -573,10 +573,17 @@ function updateProductSeo(poster, slug) {
     );
 }
 function renderProductPage(slug) {
-  const poster = ALL_POSTERS.find((p) => slugify(p.title) === slug);
-  
+
+  const cleanSlug = decodeURIComponent(slug)
+    .trim()
+    .replace(/\/+$/, "");
+
+  const poster = ALL_POSTERS.find(
+    (p) => slugify(p.title) === cleanSlug
+  );
+
   if (!poster) {
-    history.replaceState({}, "", "/");
+    history.replaceState({}, "", getHomeSeoUrl());
     showHomeSections();
     return;
   }
