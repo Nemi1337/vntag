@@ -331,12 +331,25 @@ function getHomeSeoUrl(lang = getCurrentLang()) {
     return `/${lang}`;
 }
 function rerenderCurrentView() {
-    const seoRoute = getSeoRoute();
+    const path = window.location.pathname
+        .replace(/^\/+|\/+$/g, "");
 
-    const params = new URLSearchParams(window.location.search);
-    const querySlug = params.get("poster");
+    const posterMatch = path.match(
+        /^(en|fr|it|de|es)\/poster\/(.+)$/i
+    );
 
-    const slug = seoRoute?.slug || querySlug;
+    let slug = null;
+
+    if (posterMatch) {
+        slug = decodeURIComponent(posterMatch[2]).toLowerCase();
+    } else {
+        const seoRoute = getSeoRoute();
+
+        const params = new URLSearchParams(window.location.search);
+        const querySlug = params.get("poster");
+
+        slug = seoRoute?.slug || querySlug;
+    }
 
     if (slug) {
         renderProductPage(slug);
@@ -578,9 +591,9 @@ function renderProductPage(slug) {
     .trim()
     .replace(/\/+$/, "");
 
-  const poster = ALL_POSTERS.find(
-    (p) => slugify(p.title) === cleanSlug
-  );
+ const poster = ALL_POSTERS.find(
+        (p) => slugify(p.title).toLowerCase() === normalizedSlug
+    );
 
   if (!poster) {
     history.replaceState({}, "", getHomeSeoUrl());
