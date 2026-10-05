@@ -328,7 +328,7 @@ function getPosterSeoUrl(slug, lang = getCurrentLang()) {
 }
 
 function getHomeSeoUrl(lang = getCurrentLang()) {
-    return `/${lang}/`;
+    return `/${lang}`;
 }
 function rerenderCurrentView() {
     const seoRoute = getSeoRoute();

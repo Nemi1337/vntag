@@ -1393,7 +1393,7 @@ sel.addEventListener('change', () => {
     }
 
        window.location.href =
-        `/${newLang}/`;
+        `/${newLang}`;
   });
 }
 
