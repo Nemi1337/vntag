@@ -1,43 +1,23 @@
 {
   "rewrites": [
     {
-      "source": "/en/poster/:slug",
+      "source": "/en/:path*",
       "destination": "/index.html"
     },
     {
-      "source": "/fr/poster/:slug",
+      "source": "/fr/:path*",
       "destination": "/index.html"
     },
     {
-      "source": "/it/poster/:slug",
+      "source": "/it/:path*",
       "destination": "/index.html"
     },
     {
-      "source": "/de/poster/:slug",
+      "source": "/de/:path*",
       "destination": "/index.html"
     },
     {
-      "source": "/es/poster/:slug",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/en",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/fr",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/it",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/de",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/es",
+      "source": "/es/:path*",
       "destination": "/index.html"
     }
   ]
