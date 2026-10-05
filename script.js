@@ -1,5 +1,6 @@
 import ALL_POSTERS from "./posters.js";
 import { getCurrency, setCurrency, convert } from "./currency.js";
+const t = (s) => (window.siteI18n && window.siteI18n.translate(s)) || s; // i18n for alert() texts
 
 let cart = [];
 let shuffledPosters = null;
@@ -89,6 +90,130 @@ function addToCart(poster) {
 
 }
 
+
+
+// ---------- "Added to cart" feedback: flying image + badge pulse + toast with "View cart" ----------
+function injectCartFeedbackStyles() {
+  if (document.getElementById("cart-feedback-style")) return;
+  const st = document.createElement("style");
+  st.id = "cart-feedback-style";
+  st.textContent = `
+  .cart-toast{position:fixed;top:84px;right:16px;z-index:70;width:340px;max-width:calc(100vw - 32px);background:#111827;color:#fff;border:1px solid #22c55e;border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.45);overflow:hidden;animation:cartToastIn .35s cubic-bezier(.2,.9,.3,1.2) both}
+  .cart-toast.hide{animation:cartToastOut .3s ease-in both}
+  .cart-toast .ct-body{display:flex;gap:12px;align-items:center;padding:12px}
+  .cart-toast img{width:48px;height:64px;object-fit:cover;border-radius:6px;flex-shrink:0;background:#1f2937}
+  .cart-toast .ct-info{min-width:0;flex:1}
+  .cart-toast .ct-title{font-weight:700;color:#4ade80;font-size:14px;display:flex;align-items:center;gap:6px}
+  .cart-toast .ct-name{font-size:13px;color:#e5e7eb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  .cart-toast .ct-price{font-size:13px;color:#facc15;font-weight:600}
+  .cart-toast button.ct-view{background:#4f46e5;color:#fff;font-weight:600;font-size:13px;padding:8px 12px;border-radius:8px;white-space:nowrap;cursor:pointer}
+  .cart-toast button.ct-view:hover{background:#4338ca}
+  .cart-toast .ct-bar{height:3px;background:#22c55e;transform-origin:left;animation:cartToastBar 4.5s linear both}
+  @keyframes cartToastIn{from{opacity:0;transform:translateY(-12px) scale(.96)}to{opacity:1;transform:none}}
+  @keyframes cartToastOut{to{opacity:0;transform:translateY(-12px) scale(.96)}}
+  @keyframes cartToastBar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+  @keyframes cartBump{0%{transform:scale(1)}30%{transform:scale(1.6)}60%{transform:scale(.9)}100%{transform:scale(1)}}
+  .cart-bump{animation:cartBump .6s ease both}
+  @keyframes cartRing{0%{box-shadow:0 0 0 0 rgba(34,197,94,.75)}100%{box-shadow:0 0 0 14px rgba(34,197,94,0)}}
+  .cart-ring{animation:cartRing .9s ease-out 2}
+  @media (max-width:640px){.cart-toast{top:72px;right:8px;left:8px;width:auto;max-width:none}}
+  @media (prefers-reduced-motion:reduce){.cart-toast,.cart-toast.hide,.cart-bump,.cart-ring,.cart-toast .ct-bar{animation:none}}`;
+  document.head.appendChild(st);
+}
+
+let cartToastTimer = null;
+
+function hideCartToast(toast) {
+  if (!toast || !toast.parentNode) return;
+  clearTimeout(cartToastTimer);
+  toast.classList.add("hide");
+  setTimeout(() => toast.remove(), 300);
+}
+
+function notifyAdded(poster, sourceImg) {
+  injectCartFeedbackStyles();
+  const icon = document.getElementById("cart-icon");
+  const badge = DOM.cartCount;
+
+  // 1) badge bumps and turns green for a moment, cart button pulses
+  if (badge) {
+    badge.classList.remove("cart-bump");
+    void badge.offsetWidth;
+    badge.classList.add("cart-bump");
+    badge.style.backgroundColor = "#22c55e";
+    badge.style.color = "#fff";
+    setTimeout(() => {
+      badge.style.backgroundColor = "";
+      badge.style.color = "";
+      badge.classList.remove("cart-bump");
+    }, 1600);
+  }
+  if (icon) {
+    icon.classList.remove("cart-ring");
+    void icon.offsetWidth;
+    icon.classList.add("cart-ring");
+    setTimeout(() => icon.classList.remove("cart-ring"), 2000);
+  }
+
+  // 2) the poster image flies into the cart
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce && sourceImg && icon && sourceImg.animate) {
+    const from = sourceImg.getBoundingClientRect();
+    const to = icon.getBoundingClientRect();
+    if (from.width && from.height && to.width) {
+      const fly = sourceImg.cloneNode(false);
+      fly.removeAttribute("class");
+      fly.removeAttribute("id");
+      Object.assign(fly.style, {
+        position: "fixed", left: from.left + "px", top: from.top + "px",
+        width: from.width + "px", height: from.height + "px",
+        objectFit: "contain", zIndex: "80", pointerEvents: "none",
+        borderRadius: "8px", transformOrigin: "top left", transform: "none"
+      });
+      document.body.appendChild(fly);
+      const s = 36 / Math.max(from.width, from.height);
+      const dx = (to.left + to.width / 2) - (from.width * s) / 2 - from.left;
+      const dy = (to.top + to.height / 2) - (from.height * s) / 2 - from.top;
+      const anim = fly.animate(
+        [{ transform: "translate(0,0) scale(1)", opacity: 0.95 },
+         { transform: `translate(${dx}px,${dy}px) scale(${s})`, opacity: 0.35 }],
+        { duration: 750, easing: "cubic-bezier(.5,0,.75,0)", fill: "forwards" }
+      );
+      anim.onfinish = anim.oncancel = () => fly.remove();
+    }
+  }
+
+  // 3) toast with "View cart" that disappears by itself
+  document.querySelector(".cart-toast")?.remove();
+  clearTimeout(cartToastTimer);
+  const toast = document.createElement("div");
+  toast.className = "cart-toast";
+  toast.setAttribute("role", "status");
+  toast.setAttribute("aria-live", "polite");
+  toast.innerHTML = `
+    <div class="ct-body">
+      <img src="${poster.image}" alt="">
+      <div class="ct-info">
+        <div class="ct-title"><span>✓</span><span>Added to cart</span></div>
+        <div class="ct-name">${escapeHtml(poster.title)}</div>
+        <div class="ct-price">${convert(poster.price_eur)}</div>
+      </div>
+      <button type="button" class="ct-view">View cart</button>
+    </div>
+    <div class="ct-bar"></div>`;
+  document.body.appendChild(toast);
+
+  toast.querySelector(".ct-view").addEventListener("click", () => {
+    hideCartToast(toast);
+    renderCart();
+    openModal(DOM.cartModal);
+  });
+  const bar = toast.querySelector(".ct-bar");
+  const arm = (ms) => { clearTimeout(cartToastTimer); cartToastTimer = setTimeout(() => hideCartToast(toast), ms); };
+  toast.addEventListener("mouseenter", () => { clearTimeout(cartToastTimer); bar.style.animationPlayState = "paused"; });
+  toast.addEventListener("mouseleave", () => { bar.style.animationPlayState = "running"; arm(2000); });
+  arm(4500);
+}
 
 
 function removeFromCart(index) {
@@ -386,7 +511,8 @@ function renderProductPage(slug) {
 
   
 page.querySelector("#buy-now-btn").addEventListener("click", () => {
-  addToCart(poster);   
+  addToCart(poster);
+  notifyAdded(poster, page.querySelector("img.zoomable"));   
   updateCartCount();    
   
 });
@@ -567,7 +693,7 @@ function setupShippingForm() {
     e.preventDefault();
 
     if (!window.cart || !window.cart.length) {
-      alert("Your cart is empty — add at least one item.");
+      alert(t("Your cart is empty — add at least one item."));
       return;
     }
 
@@ -580,7 +706,7 @@ function setupShippingForm() {
     });
 
     if (!formspreeResponse.ok) {
-      alert("Error sending shipping form.");
+      alert(t("Error sending shipping form."));
       return;
     }
 
@@ -598,17 +724,17 @@ function setupShippingForm() {
       const data = await createSessionResponse.json();
 
       if (!data.sessionId) {
-        alert("Stripe session error");
+        alert(t("Stripe session error"));
         return;
       }
 
       if (!stripe) await initStripe();
-      if (!stripe) return alert("Stripe failed to load.");
+      if (!stripe) return alert(t("Stripe failed to load."));
 
       await stripe.redirectToCheckout({ sessionId: data.sessionId });
     } catch (err) {
       console.error("Checkout error:", err);
-      alert("Payment redirect failed. Please try again.");
+      alert(t("Payment redirect failed. Please try again."));
     }
   });
 }
