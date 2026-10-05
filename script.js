@@ -21,7 +21,20 @@ const DOM = {
     mainContainer: document.body,
     cartCount: document.getElementById("cart-count"),
 };
+function getImageUrl(src) {
+    if (!src) return "";
 
+    if (
+        src.startsWith("/") ||
+        src.startsWith("http://") ||
+        src.startsWith("https://") ||
+        src.startsWith("data:")
+    ) {
+        return src;
+    }
+
+    return `/${src}`;
+}
 function slugify(text) {
     return text
         .toString()
@@ -192,7 +205,7 @@ function notifyAdded(poster, sourceImg) {
   toast.setAttribute("aria-live", "polite");
   toast.innerHTML = `
     <div class="ct-body">
-      <img src="${poster.image}" alt="">
+      <img src="${getImageUrl(poster.image)}" alt="">
       <div class="ct-info">
         <div class="ct-title"><span>✓</span><span>Added to cart</span></div>
         <div class="ct-name">${escapeHtml(poster.title)}</div>
@@ -232,7 +245,7 @@ function renderCart() {
         return `
             <div class="flex items-center justify-between bg-gray-800 p-3 rounded-md shadow text-white">
                 <div class="flex items-center space-x-3">
-                    <img src="${item.image}" alt="${escapeHtml(item.title)}" class="w-12 h-12 object-cover rounded">
+                    <img src="${getImageUrl(item.image)}" alt="${escapeHtml(item.title)}" class="w-12 h-12 object-cover rounded">
                     <div>
                         <p class="font-semibold">${escapeHtml(item.title)}</p>
                         <p class="text-gray-400">${convert(item.price_eur)} × ${item.quantity} = ${convert(itemTotalEur)}</p>
@@ -251,10 +264,11 @@ function renderCart() {
 }
 
 function updateCurrencySwitcherUI() {
-    const currentCurrency = getCurrency();
-    DOM.currencySwitcher?.querySelectorAll("span").forEach((el) => {
-        el.classList.toggle("bg-gray-600", el.dataset.cur === currentCurrency);
-    });
+    const select = document.getElementById("currency-select");
+
+    if (select) {
+        select.value = getCurrency();
+    }
 }
 
 function updateAllPrices() {
@@ -263,70 +277,128 @@ function updateAllPrices() {
         el.textContent = convert(priceEur);
     });
 }
+function getSeoRoute() {
+    const path = window.location.pathname
+        .replace(/^\/+|\/+$/g, "");
 
-function rerenderCurrentView() {
+    const match = path.match(
+        /^(en|fr|it|de|es)\/poster\/(.+)$/i
+    );
+
+    if (match) {
+        return {
+            lang: match[1].toLowerCase(),
+            slug: decodeURIComponent(match[2])
+        };
+    }
+
+    const homeMatch = path.match(
+        /^(en|fr|it|de|es)$/i
+    );
+
+    if (homeMatch) {
+        return {
+            lang: homeMatch[1].toLowerCase(),
+            slug: null
+        };
+    }
+
+    return null;
+}
+
+function getCurrentLang() {
+    const seo = getSeoRoute();
+
+    if (seo?.lang) {
+        return seo.lang;
+    }
+
     const params = new URLSearchParams(window.location.search);
-    const slug = params.get("poster");
+    const queryLang = params.get("lang");
+
+    if (["en", "fr", "it", "de", "es"].includes(queryLang)) {
+        return queryLang;
+    }
+
+    return document.documentElement.lang || "en";
+}
+
+function getPosterSeoUrl(slug, lang = getCurrentLang()) {
+    return `/${lang}/poster/${encodeURIComponent(slug)}`;
+}
+
+function getHomeSeoUrl(lang = getCurrentLang()) {
+    return `/${lang}/`;
+}
+function rerenderCurrentView() {
+    const seoRoute = getSeoRoute();
+
+    const params = new URLSearchParams(window.location.search);
+    const querySlug = params.get("poster");
+
+    const slug = seoRoute?.slug || querySlug;
+
     if (slug) {
         renderProductPage(slug);
     } else {
         renderCatalogPage();
     }
+
     if (!DOM.cartModal.classList.contains("hidden")) {
         renderCart();
     }
 }
 
-function renderPosterCards(posters) {
-  if (!DOM.grid) return;
+  function renderPosterCards(posters) {
+    if (!DOM.grid) return;
 
-  DOM.grid.innerHTML = posters.map((poster) => {
-    const slug = slugify(poster.title);
+    DOM.grid.innerHTML = posters.map((poster) => {
+      const slug = slugify(poster.title);
 
-    const isWide = !!poster.wide;
-    const cardSpan = isWide ? "lg:col-span-2" : "";
-    const ratio = isWide ? "pt-[75%]" : "pt-[150%]";
+      const isWide = !!poster.wide;
+      const cardSpan = isWide ? "lg:col-span-2" : "";
+      const ratio = isWide ? "pt-[75%]" : "pt-[150%]";
 
-    const imgFit = isWide ? "object-contain p-3" : "object-cover";
+      const imgFit = isWide ? "object-contain p-3" : "object-cover";
 
-    return `
-      <a href="/?poster=${slug}"
-         class="poster-card block bg-gray-800 rounded-lg shadow-md overflow-hidden ${cardSpan}">
+      return `
+        <a href="${getPosterSeoUrl(slug)}"
+          class="poster-card block bg-gray-800 rounded-lg shadow-md overflow-hidden ${cardSpan}">
 
-        <div class="relative w-full ${ratio} overflow-hidden bg-gray-900">
-          <img
-            src="${poster.image}"
-            class="absolute inset-0 w-full h-full ${imgFit} transition-transform duration-300 hover:scale-105"
-            alt="${escapeHtml(poster.title)}"
-            loading="lazy"
-          >
+          <div class="relative w-full ${ratio} overflow-hidden bg-gray-900">
+            <img
+              src="${poster.image}"
+              class="absolute inset-0 w-full h-full ${imgFit} transition-transform duration-300 hover:scale-105"
+              alt="${escapeHtml(poster.title)}"
+              loading="lazy"
+            >
 
-          <div class="absolute top-2 right-2 bg-gradient-to-r from-yellow-500 to-yellow-300 text-gray-900 px-3 py-1 rounded-lg font-bold shadow-lg border border-yellow-200 text-sm md:text-base" data-price-eur="${poster.price_eur}">
-            ${convert(poster.price_eur)}
+            <div class="absolute top-2 right-2 bg-gradient-to-r from-yellow-500 to-yellow-300 text-gray-900 px-3 py-1 rounded-lg font-bold shadow-lg border border-yellow-200 text-sm md:text-base" data-price-eur="${poster.price_eur}">
+              ${convert(poster.price_eur)}
+            </div>
           </div>
-        </div>
 
-        <!-- ✅ НИЗ як на прикладі: title + size + artist -->
-        <div class="p-4 text-center">
-          <h3 class="text-white font-semibold text-base md:text-lg leading-tight mb-2 line-clamp-2">
-            ${escapeHtml(poster.title)}
-          </h3>
+          <!-- ✅ НИЗ як на прикладі: title + size + artist -->
+          <div class="p-4 text-center">
+            <h3 class="text-white font-semibold text-base md:text-lg leading-tight mb-2 line-clamp-2">
+              ${escapeHtml(poster.title)}
+            </h3>
 
-          ${poster.size ? `
-            <p class="text-gray-400 text-xs md:text-sm mb-1">
-              ${escapeHtml(poster.size)}
+            ${poster.size ? `
+              <p class="text-gray-400 text-xs md:text-sm mb-1">
+                ${escapeHtml(poster.size)}
+              </p>
+            ` : ""}
+
+            <p class="text-gray-500 text-xs md:text-sm">
+              ${escapeHtml(poster.artist || "Unknown")}
             </p>
-          ` : ""}
+          </div>
 
-          <p class="text-gray-500 text-xs md:text-sm">
-            ${escapeHtml(poster.artist || "Unknown")}
-          </p>
-        </div>
-
-      </a>
-    `;
-  }).join("");
-}
+        </a>
+      `;
+    }).join("");
+  }
 
 
 function renderCatalogPage() {
@@ -340,14 +412,175 @@ function renderCatalogPage() {
         DOM.loadMoreBtn.style.display = visibleCount >= ALL_POSTERS.length ? "none" : "block";
     }
 }
+function setMeta(name, content) {
+    if (!content) return;
 
+    let el = document.querySelector(
+        `meta[name="${name}"]`
+    );
+
+    if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("name", name);
+        document.head.appendChild(el);
+    }
+
+    el.setAttribute("content", content);
+}
+
+function setProperty(property, content) {
+    if (!content) return;
+
+    let el = document.querySelector(
+        `meta[property="${property}"]`
+    );
+
+    if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("property", property);
+        document.head.appendChild(el);
+    }
+
+    el.setAttribute("content", content);
+}
+
+function setCanonical(url) {
+    let link = document.querySelector(
+        'link[rel="canonical"]'
+    );
+
+    if (!link) {
+        link = document.createElement("link");
+        link.setAttribute("rel", "canonical");
+        document.head.appendChild(link);
+    }
+
+    link.setAttribute("href", url);
+}
+
+function setHreflang(lang, url) {
+    let link = document.querySelector(
+        `link[rel="alternate"][hreflang="${lang}"]`
+    );
+
+    if (!link) {
+        link = document.createElement("link");
+
+        link.setAttribute("rel", "alternate");
+        link.setAttribute("hreflang", lang);
+
+        document.head.appendChild(link);
+    }
+
+    link.setAttribute("href", url);
+}
+
+function updateProductSeo(poster, slug) {
+
+    const lang = getCurrentLang();
+
+    const origin = window.location.origin;
+
+    const currentUrl =
+        `${origin}/${lang}/poster/${encodeURIComponent(slug)}`;
+
+    const description =
+        poster.description ||
+        `${poster.title} vintage poster by ${poster.artist || "Unknown"}.`;
+
+    // HTML language
+    document.documentElement.lang = lang;
+
+    // Title
+    document.title =
+        `${poster.title} | Vintage Posters`;
+
+    // Description
+    setMeta(
+        "description",
+        description.substring(0, 160)
+    );
+
+    // Canonical
+    setCanonical(currentUrl);
+
+    // Open Graph
+    setProperty(
+        "og:title",
+        poster.title
+    );
+
+    setProperty(
+        "og:description",
+        description.substring(0, 160)
+    );
+
+    setProperty(
+        "og:url",
+        currentUrl
+    );
+
+    setProperty(
+        "og:type",
+        "product"
+    );
+
+    setProperty(
+        "og:image",
+        new URL(
+    getImageUrl(poster.image),
+    origin
+).href
+    );
+
+    // Twitter
+    setMeta(
+        "twitter:card",
+        "summary_large_image"
+    );
+
+    setMeta(
+        "twitter:title",
+        poster.title
+    );
+
+    setMeta(
+        "twitter:description",
+        description.substring(0, 160)
+    );
+
+    setMeta(
+        "twitter:image",
+        new URL(
+    getImageUrl(poster.image),
+    origin
+).href
+    );
+
+    // hreflang
+    ["en", "fr", "it", "de", "es"].forEach((l) => {
+
+        const url =
+            `${origin}/${l}/poster/${encodeURIComponent(slug)}`;
+
+        setHreflang(l, url);
+    });
+
+    // fallback
+    setHreflang(
+        "x-default",
+        `${origin}/en/poster/${encodeURIComponent(slug)}`
+    );
+}
 function renderProductPage(slug) {
   const poster = ALL_POSTERS.find((p) => slugify(p.title) === slug);
+  
   if (!poster) {
     history.replaceState({}, "", "/");
     showHomeSections();
     return;
   }
+  updateProductSeo(poster, slug);
   window.scrollTo({ top: 0, behavior: "instant" });
   
   hideHomeSections();
@@ -370,7 +603,7 @@ function renderProductPage(slug) {
             ${images.map(img => `
   <div class="min-w-full flex items-center justify-center">
     <img
-      src="${img}"
+      src="${getImageUrl(img)}"
       class="zoomable w-full ${imgMaxH} object-contain select-none cursor-zoom-in transition-transform duration-200"
       alt="${escapeHtml(poster.title)}"
       draggable="false"
@@ -390,7 +623,7 @@ function renderProductPage(slug) {
           <div class="mt-3 flex gap-2 overflow-auto pb-1">
             ${images.map((img, i) => `
               <button class="thumb border border-gray-700 rounded-md overflow-hidden w-16 h-16 flex-shrink-0" data-idx="${i}">
-                <img src="${img}" class="w-full h-full object-cover" alt="">
+                <img src="${getImageUrl(img)}" class="w-full h-full object-cover" alt="">
               </button>
             `).join("")}
           </div>
@@ -559,10 +792,10 @@ function renderSimilarPosters(currentPoster) {
     const slug = slugify(p.title);
 
     return `
-      <a href="/?poster=${slug}" class="poster-card block bg-gray-800 rounded-lg shadow-md overflow-hidden">
+      <a href="${getPosterSeoUrl(slug)}" class="poster-card block bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <div class="relative w-full pt-[150%] overflow-hidden bg-gray-900">
           <img
-            src="${p.image}"
+            src="${getImageUrl(p.image)}"
             class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 hover:scale-105"
             alt="${escapeHtml(p.title)}"
             loading="lazy"
@@ -606,67 +839,119 @@ function setupLoadMore() {
 function setupSearch() {
     const input = document.getElementById("search-input");
     const resultsContainer = document.getElementById("search-results");
+
     if (!input || !resultsContainer) return;
 
     input.addEventListener("input", () => {
         const query = input.value.toLowerCase().trim();
+
         resultsContainer.innerHTML = "";
+
         if (!query) {
             resultsContainer.classList.add("hidden");
             return;
         }
 
-        const matches = ALL_POSTERS.filter(
-            poster =>
+        const matches = ALL_POSTERS
+            .filter(poster =>
                 poster.title.toLowerCase().includes(query) ||
                 (poster.artist && poster.artist.toLowerCase().includes(query))
-        ).slice(0, 10);
+            )
+            .slice(0, 10);
 
         if (matches.length > 0) {
+
             matches.forEach(poster => {
                 const item = document.createElement("div");
-                item.className = "flex items-center space-x-3 p-2 hover:bg-gray-700 rounded cursor-pointer transition";
+
+                item.className =
+                    "flex items-center space-x-3 p-2 hover:bg-gray-700 rounded cursor-pointer transition";
+
                 item.innerHTML = `
-                    <img src="${poster.image}" alt="${escapeHtml(poster.title)}" class="w-10 h-14 object-cover rounded border border-gray-600">
+                    <img
+                        src="${getImageUrl(poster.image)}"
+                        alt="${escapeHtml(poster.title)}"
+                        class="w-10 h-14 object-cover rounded border border-gray-600"
+                    >
+
                     <div class="flex-1 min-w-0">
-                        <p class="font-medium text-sm text-white truncate">${poster.title}</p>
-                        <p class="text-[15px] text-gray-300 mb-5 font-medium">${poster.artist || "Unknown"}</p>
+                        <p class="font-medium text-sm text-white truncate">
+                            ${escapeHtml(poster.title)}
+                        </p>
+
+                        <p class="text-[15px] text-gray-300 mb-5 font-medium">
+                            ${escapeHtml(poster.artist || "Unknown")}
+                        </p>
                     </div>
-                    <span class="text-yellow-400 font-semibold text-sm whitespace-nowrap">${convert(poster.price_eur)}</span>
+
+                    <span class="text-yellow-400 font-semibold text-sm whitespace-nowrap">
+                        ${convert(poster.price_eur)}
+                    </span>
                 `;
+
                 item.addEventListener("click", () => {
-                history.pushState({}, "", `/?poster=${slugify(poster.title)}`);
-                rerenderCurrentView();
-                input.value = "";
-                resultsContainer.classList.add("hidden");
+                    const slug = slugify(poster.title);
+
+                    // SEO URL:
+                    // /en/poster/...
+                    // /fr/poster/...
+                    // /it/poster/...
+                    // /de/poster/...
+                    // /es/poster/...
+                    history.pushState(
+                        {},
+                        "",
+                        getPosterSeoUrl(slug)
+                    );
+
+                    rerenderCurrentView();
+
+                    input.value = "";
+                    resultsContainer.classList.add("hidden");
                 });
 
                 resultsContainer.appendChild(item);
             });
+
             resultsContainer.classList.remove("hidden");
+
         } else {
-            resultsContainer.innerHTML = `<div class="p-2 text-gray-400 text-sm">No results found</div>`;
+
+            resultsContainer.innerHTML = `
+                <div class="p-2 text-gray-400 text-sm">
+                    No results found
+                </div>
+            `;
+
             resultsContainer.classList.remove("hidden");
         }
     });
 
     document.addEventListener("click", (e) => {
-        if (!input.contains(e.target) && !resultsContainer.contains(e.target)) {
+        if (
+            !input.contains(e.target) &&
+            !resultsContainer.contains(e.target)
+        ) {
             resultsContainer.classList.add("hidden");
         }
     });
 }
 
-
 function setupCurrencySwitcher() {
-    DOM.currencySwitcher?.addEventListener("click", (e) => {
-        if (e.target.tagName === "SPAN" && e.target.dataset.cur) {
-            setCurrency(e.target.dataset.cur);
-            updateCurrencySwitcherUI();
-            updateAllPrices();
-            if (!DOM.cartModal.classList.contains("hidden")) {
-                renderCart();
-            }
+    const select = document.getElementById("currency-select");
+
+    if (!select) return;
+
+    select.value = getCurrency();
+
+    select.addEventListener("change", () => {
+        setCurrency(select.value);
+
+        updateCurrencySwitcherUI();
+        updateAllPrices();
+
+        if (DOM.cartModal && !DOM.cartModal.classList.contains("hidden")) {
+            renderCart();
         }
     });
 }
@@ -835,34 +1120,80 @@ function showHomeSections() {
   document.getElementById("product-page")?.remove();
 }
 function setupClientSideRouting() {
-  
-  document.addEventListener("click", (e) => {
-    const a = e.target.closest('a[href^="/?poster="]');
-    if (!a) return;
 
-    e.preventDefault();
-    const url = new URL(a.getAttribute("href"), window.location.origin);
+    document.addEventListener("click", (e) => {
+        const a = e.target.closest("a");
 
-    history.pushState({}, "", url.pathname + url.search);
-    rerenderCurrentView();
-  });
+        if (!a) return;
 
- 
-  document.querySelectorAll('a[href="#gallery"]').forEach((a) => {
-    a.addEventListener("click", (e) => {
-      e.preventDefault();
+        const href = a.getAttribute("href");
 
-      history.pushState({}, "", "/#gallery");
-      showHomeSections();
-      renderCatalogPage();
+        if (!href) return;
 
-      document.getElementById("gallery")?.scrollIntoView({ behavior: "smooth" });
+        // SEO poster links
+        if (
+            href.match(/^\/(en|fr|it|de|es)\/poster\//i)
+        ) {
+            e.preventDefault();
+
+            history.pushState({}, "", href);
+
+            rerenderCurrentView();
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+            return;
+        }
+
+        // Старі poster URLs — залишаємо для сумісності
+        if (href.startsWith("/?poster=")) {
+            e.preventDefault();
+
+            const url = new URL(
+                href,
+                window.location.origin
+            );
+
+            history.pushState(
+                {},
+                "",
+                url.pathname + url.search
+            );
+
+            rerenderCurrentView();
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+            return;
+        }
     });
-  });
 
-  window.addEventListener("popstate", () => {
-    rerenderCurrentView();
-  });
+    document.querySelectorAll('a[href="#gallery"]').forEach((a) => {
+        a.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            history.pushState({}, "", getHomeSeoUrl());
+
+            showHomeSections();
+            renderCatalogPage();
+
+            document
+                .getElementById("gallery")
+                ?.scrollIntoView({
+                    behavior: "smooth"
+                });
+        });
+    });
+
+    window.addEventListener("popstate", () => {
+        rerenderCurrentView();
+    });
 }
 function openShippingModal() {
   const shippingModal = document.getElementById("shipping-modal");

@@ -1,0 +1,44 @@
+{
+  "rewrites": [
+    {
+      "source": "/en/poster/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/fr/poster/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/it/poster/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/de/poster/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/es/poster/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/en",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/fr",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/it",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/de",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/es",
+      "destination": "/index.html"
+    }
+  ]
+}
