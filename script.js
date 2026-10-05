@@ -589,15 +589,18 @@ function renderProductPage(slug) {
 
   const cleanSlug = decodeURIComponent(slug)
     .trim()
+    .toLowerCase()
     .replace(/\/+$/, "");
 
- const poster = ALL_POSTERS.find(
-        (p) => slugify(p.title).toLowerCase() === normalizedSlug
-    );
+  const poster = ALL_POSTERS.find(
+    (p) => slugify(p.title).toLowerCase() === cleanSlug
+  );
 
   if (!poster) {
+    // unknown slug -> show the catalog (and actually render it)
     history.replaceState({}, "", getHomeSeoUrl());
     showHomeSections();
+    renderCatalogPage();
     return;
   }
   updateProductSeo(poster, slug);
@@ -1114,7 +1117,7 @@ function initialize() {
   setupClientSideRouting();
   setupModalCloseHandlers(); 
 setupGlobalModalClose();
-  rerenderCurrentView();
+  try { rerenderCurrentView(); } catch (err) { console.error("Initial render failed:", err); }
   setupLoadMore();
   setupSearch();
   setupCurrencySwitcher();

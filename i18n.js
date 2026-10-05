@@ -1397,28 +1397,6 @@ sel.addEventListener('change', () => {
   });
 }
 
-function markActive() {
-  const sel = document.querySelector('#language-select');
-
-  if (sel) {
-    sel.value = lang;
-  }
-}
-
-function markActive() {
-  const links = document.querySelectorAll('#lang-switcher [data-lang]');
-
-  links.forEach(link => {
-    if (link.dataset.lang === lang) {
-      link.style.color = '#ffffff';
-      link.style.textDecoration = 'underline';
-      link.style.textUnderlineOffset = '3px';
-    } else {
-      link.style.color = '#9ca3af';
-      link.style.textDecoration = 'none';
-    }
-  });
-}
   function markActive() {
     const sel = document.querySelector('#lang-switcher select');
     if (sel) sel.value = lang;
